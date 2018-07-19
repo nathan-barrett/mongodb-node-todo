@@ -13,7 +13,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
-
+//POST /todos request
 app.post('/todos', (req, res) => {
   const todo = new Todo({
     text: req.body.text
@@ -27,6 +27,48 @@ app.post('/todos', (req, res) => {
     }
   );
 });
+//POST /users
+app.post('/users', (req, res) => {
+  const body = _.pick(req.body, ['email', 'password']);
+  const user = new User(body);
+
+  user
+    .save()
+    .then(() => {
+      return user.generateAuthToken();
+    })
+    .then(
+      (token) => {
+        res.header('x-auth', token).send(user);
+      },
+      (e) => {
+        res.status(400).send(e);
+      }
+    );
+});
+// GET /todos
+app.get('/todos', (req, res) => {
+  Todo.find().then(
+    (todos) => {
+      res.send({ todos });
+    },
+    (e) => {
+      res.status(400).send(e);
+    }
+  );
+});
+// GET /users
+app.get('/users', (req, res) => {
+  User.find().then(
+    (users) => {
+      res.send({ users });
+    },
+    (e) => {
+      res.status(400).send(e);
+    }
+  );
+});
+
 // GET /todos:id
 app.get('/todos/:id', (req, res) => {
   const id = req.params.id;
@@ -46,17 +88,6 @@ app.get('/todos/:id', (req, res) => {
     .catch((e) => {
       res.status(400).send();
     });
-});
-
-app.get('/todos', (req, res) => {
-  Todo.find().then(
-    (todos) => {
-      res.send({ todos });
-    },
-    (e) => {
-      res.status(400).send(e);
-    }
-  );
 });
 
 app.delete('/todos/:id', (req, res) => {

@@ -18,12 +18,24 @@ const todos = [
   }
 ];
 
+const users = [
+  {
+    email: 'nathan@nathan.com',
+    password: 'password'
+  },
+  {
+    email: 'angela@angela.com',
+    password: 'password'
+  }
+];
+
 beforeEach((done) => {
   Todo.remove({})
     .then(() => {
       return Todo.insertMany(todos);
     })
     .then(() => done());
+
 });
 
 describe('POST /todos', () => {
