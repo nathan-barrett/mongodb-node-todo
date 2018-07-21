@@ -8,6 +8,7 @@ const { ObjectID } = require('mongodb');
 const { mongoose } = require('./db/mongoose');
 const { Todo } = require('./models/todo');
 const { User } = require('./models/user');
+const { authenticate } = require('./middleware/authenticate');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -51,17 +52,6 @@ app.get('/todos', (req, res) => {
   Todo.find().then(
     (todos) => {
       res.send({ todos });
-    },
-    (e) => {
-      res.status(400).send(e);
-    }
-  );
-});
-// GET /users
-app.get('/users', (req, res) => {
-  User.find().then(
-    (users) => {
-      res.send({ users });
     },
     (e) => {
       res.status(400).send(e);
@@ -132,6 +122,23 @@ app.patch('/todos/:id', (req, res) => {
     .catch((e) => {
       res.status(400).send();
     });
+});
+
+// GET /users
+app.get('/users', (req, res) => {
+  User.find().then(
+    (users) => {
+      res.send({ users });
+    },
+    (e) => {
+      res.status(400).send(e);
+    }
+  );
+});
+
+// GET /user/me
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
 });
 //Listen to Port variable
 app.listen(port, () => {
